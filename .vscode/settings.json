@@ -1,0 +1,37 @@
+{
+    "files.exclude": {
+        "**/.DS_Store": true,
+        "**/.git": true,
+        "**/.vs": true,
+        "**/.gitmodules": true,
+        "**/.vsconfig": true,
+        "**/*.meta": true,
+
+        // Unity cache
+        "Library/": true,
+        "library/": true,
+        "Logs/": true,
+        "logs/": true,
+        "Temp/": true,
+        "temp/": true,
+        "obj/": true,
+        "Obj/": true,
+        "Build/": true,
+        "build/": true
+    },
+
+    "files.associations": {
+        "*.asset": "yaml",
+        "*.meta": "yaml",
+        "*.prefab": "yaml",
+        "*.unity": "yaml"
+    },
+
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.sln": "*.csproj",
+        "*.slnx": "*.csproj"
+    },
+
+    "dotnet.defaultSolution": "TetherGame.slnx"
+}
