@@ -122,7 +122,7 @@ public class PlayerMovement2D : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(
                 rb.linearVelocity.x,
-                -wallSlideSpeed // Direkt wall slide speed'e set et
+                Mathf.Max(rb.linearVelocity.y, -wallSlideSpeed)
             );
         }
 
