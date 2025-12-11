@@ -29,6 +29,8 @@ public class PlayerMovement2D : MonoBehaviour
     [SerializeField] private Tutorial_GrapplingRope grappleRope;
     [SerializeField] private Tutorial_GrapplingGun grappleGun; 
 
+    private bool wasGrappling = false;
+
     private Rigidbody2D rb;
     private BoxCollider2D col;
 
@@ -111,11 +113,36 @@ public class PlayerMovement2D : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // SADECE LAUNCH MODE'da player kontrolünü devre dışı bırak
+        bool currentlyGrappling = (grappleRope != null && grappleRope.isGrappling);
+        
+        // Grapple BIRAKILDI MI? (was true, now false)
+        if (wasGrappling && !currentlyGrappling)
+        {
+            // Momentum'u ZORLA KOR - velocity'yi DEĞİŞTİRME
+            Debug.Log($"Released grapple! Momentum: {rb.linearVelocity}");
+            
+            // Ground check yap ama velocity'ye dokunma
+            wasGrounded = isGrounded;
+            if (groundCheck != null)
+            {
+                isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckOffset, groundLayer);
+            }
+            
+            if (isGrounded && !wasGrounded)
+            {
+                OnLanding();
+            }
+            
+            wasGrappling = false;
+            return; // Bu frame'de başka bir şey yapma
+        }
+        
+        wasGrappling = currentlyGrappling;
+        
+        // LAUNCH MODE - SpringJoint tam kontrolde
         if (grappleRope != null && grappleRope.isGrappling && 
             grappleGun != null && grappleGun.isLaunchMode)
         {
-            // Launch mode - SpringJoint tam kontrolde
             wasGrounded = isGrounded;
             
             if (groundCheck != null)
@@ -130,7 +157,34 @@ public class PlayerMovement2D : MonoBehaviour
             return; // Erken çık
         }
         
-        // Normal hareket (grappling değil VEYA swing mode)
+        // SWING MODE - sınırlı kontrol
+        if (grappleRope != null && grappleRope.isGrappling && !grappleGun.isLaunchMode)
+        {
+            // Max hız sınırı (dönerek üste çıkmayı engelle)
+            float maxSwingSpeed = 15f;
+            if (rb.linearVelocity.magnitude > maxSwingSpeed)
+            {
+                rb.linearVelocity = rb.linearVelocity.normalized * maxSwingSpeed;
+            }
+            
+            // Player input ile force ekle (AZALTILMIŞ)
+            if (Mathf.Abs(moveInput) > 0.1f)
+            {
+                Vector2 moveForce = Vector2.right * moveInput * moveSpeed * 0.5f; // 2f'den 0.5f'e düşürdük
+                rb.AddForce(moveForce, ForceMode2D.Force);
+            }
+            
+            // Ground check
+            wasGrounded = isGrounded;
+            if (groundCheck != null)
+            {
+                isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckOffset, groundLayer);
+            }
+            
+            return; // Erken çık
+        }
+        
+        // NORMAL MOVEMENT - grappling yok
         float targetSpeed = moveInput * moveSpeed;
         
         if (!isGrounded)
@@ -138,21 +192,8 @@ public class PlayerMovement2D : MonoBehaviour
             targetSpeed *= airControlMultiplier;
         }
 
-        // Grappling swing mode'daysa force ekle (velocity set etme)
-        if (grappleRope != null && grappleRope.isGrappling && !grappleGun.isLaunchMode)
-        {
-            // Swing mode - player input ile force ekle
-            if (Mathf.Abs(moveInput) > 0.1f)
-            {
-                Vector2 moveForce = Vector2.right * moveInput * moveSpeed * 2f; // Force olarak ekle
-                rb.AddForce(moveForce, ForceMode2D.Force);
-            }
-        }
-        else
-        {
-            // Normal ground/air movement
-            rb.linearVelocity = new Vector2(targetSpeed, rb.linearVelocity.y);
-        }
+        // Normal ground/air movement
+        rb.linearVelocity = new Vector2(targetSpeed, rb.linearVelocity.y);
 
         // Wall Slide Physics
         if (isWallSliding)
