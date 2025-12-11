@@ -25,6 +25,9 @@ public class PlayerMovement2D : MonoBehaviour
     [SerializeField] private float wallSlideSpeed = 4f;
     [SerializeField] private float wallCheckOffset = 0.2f;
 
+    [Header("References")]
+    [SerializeField] private Tutorial_GrapplingRope grappleRope;
+
     private Rigidbody2D rb;
     private BoxCollider2D col;
 
@@ -88,14 +91,14 @@ public class PlayerMovement2D : MonoBehaviour
         if (jumpBufferTimer.IsRunning && coyoteTimer.IsRunning)
         {
             Jump();
-            jumpBufferTimer.ForceExpire(); // Buffer'ı kullandık
+            jumpBufferTimer.ForceExpire();
         }
 
         // Variable Jump Height
         if (Input.GetButtonUp("Jump") && rb.linearVelocity.y > 0f)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * jumpCutMultiplier);
-            coyoteTimer.ForceExpire(); // Coyote'ı iptal et
+            coyoteTimer.ForceExpire();
         }
 
         // Wall Slide Check
@@ -107,7 +110,25 @@ public class PlayerMovement2D : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Yatay hareket
+        // Grappling sırasında player kontrolünü devre dışı bırak
+        if (grappleRope != null && grappleRope.isGrappling)
+        {
+            // Grappling sırasında sadece ground check yap
+            wasGrounded = isGrounded;
+            
+            if (groundCheck != null)
+            {
+                isGrounded = Physics2D.OverlapCircle(
+                    groundCheck.position,
+                    groundCheckOffset,
+                    groundLayer
+                );
+            }
+            
+            return; // Erken çık - SpringJoint kontrolü alsın
+        }
+        
+        // Normal hareket (grappling değilse)
         float targetSpeed = moveInput * moveSpeed;
         
         if (!isGrounded)
@@ -155,7 +176,7 @@ public class PlayerMovement2D : MonoBehaviour
     {
         if (wallCheckLeft == null || wallCheckRight == null) return;
 
-        Vector2 boxSize = new Vector2(wallCheckOffset, col.size.y * 0.8f); // Yüksekliğin %80'i
+        Vector2 boxSize = new Vector2(wallCheckOffset, col.size.y * 0.8f);
 
         // Sol duvar
         RaycastHit2D hitLeft = Physics2D.BoxCast(
@@ -196,7 +217,6 @@ public class PlayerMovement2D : MonoBehaviour
     private void OnLanding()
     {
         Debug.Log("Landed!");
-        // TODO: Camera shake, particle effect, sound
     }
 
     private void OnDrawGizmosSelected()
@@ -209,7 +229,6 @@ public class PlayerMovement2D : MonoBehaviour
 
         if (enableWallSlide && col != null)
         {
-            // Sol duvar - 3 ray çiz
             if (wallCheckLeft != null)
             {
                 Gizmos.color = isTouchingWallLeft ? Color.red : Color.blue;
@@ -222,7 +241,6 @@ public class PlayerMovement2D : MonoBehaviour
                 Gizmos.DrawLine(botPoint, botPoint + Vector3.left * wallCheckOffset);
             }
 
-            // Sağ duvar - 3 ray çiz
             if (wallCheckRight != null)
             {
                 Gizmos.color = isTouchingWallRight ? Color.red : Color.blue;
