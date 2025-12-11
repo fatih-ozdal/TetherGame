@@ -27,6 +27,7 @@ public class PlayerMovement2D : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private Tutorial_GrapplingRope grappleRope;
+    [SerializeField] private Tutorial_GrapplingGun grappleGun; 
 
     private Rigidbody2D rb;
     private BoxCollider2D col;
@@ -110,10 +111,11 @@ public class PlayerMovement2D : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Grappling sırasında player kontrolünü devre dışı bırak
-        if (grappleRope != null && grappleRope.isGrappling)
+        // SADECE LAUNCH MODE'da player kontrolünü devre dışı bırak
+        if (grappleRope != null && grappleRope.isGrappling && 
+            grappleGun != null && grappleGun.isLaunchMode)
         {
-            // Grappling sırasında sadece ground check yap
+            // Launch mode - SpringJoint tam kontrolde
             wasGrounded = isGrounded;
             
             if (groundCheck != null)
@@ -125,10 +127,10 @@ public class PlayerMovement2D : MonoBehaviour
                 );
             }
             
-            return; // Erken çık - SpringJoint kontrolü alsın
+            return; // Erken çık
         }
         
-        // Normal hareket (grappling değilse)
+        // Normal hareket (grappling değil VEYA swing mode)
         float targetSpeed = moveInput * moveSpeed;
         
         if (!isGrounded)
@@ -136,7 +138,21 @@ public class PlayerMovement2D : MonoBehaviour
             targetSpeed *= airControlMultiplier;
         }
 
-        rb.linearVelocity = new Vector2(targetSpeed, rb.linearVelocity.y);
+        // Grappling swing mode'daysa force ekle (velocity set etme)
+        if (grappleRope != null && grappleRope.isGrappling && !grappleGun.isLaunchMode)
+        {
+            // Swing mode - player input ile force ekle
+            if (Mathf.Abs(moveInput) > 0.1f)
+            {
+                Vector2 moveForce = Vector2.right * moveInput * moveSpeed * 2f; // Force olarak ekle
+                rb.AddForce(moveForce, ForceMode2D.Force);
+            }
+        }
+        else
+        {
+            // Normal ground/air movement
+            rb.linearVelocity = new Vector2(targetSpeed, rb.linearVelocity.y);
+        }
 
         // Wall Slide Physics
         if (isWallSliding)

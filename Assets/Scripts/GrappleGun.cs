@@ -47,6 +47,7 @@ public class Tutorial_GrapplingGun : MonoBehaviour
 
     [HideInInspector] public Vector2 grapplePoint;
     [HideInInspector] public Vector2 grappleDistanceVector;
+    [HideInInspector] public bool isLaunchMode = false;
 
     private void Start()
     {
@@ -59,9 +60,17 @@ public class Tutorial_GrapplingGun : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
+            launchToPoint = false;
+            isLaunchMode = false;
             SetGrapplePoint();
         }
-        else if (Input.GetKey(KeyCode.Mouse0))
+        else if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            launchToPoint = true;
+            isLaunchMode = true;
+            SetGrapplePoint();
+        }
+        else if (Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse1))
         {
             if (grappleRope.enabled)
             {
@@ -71,6 +80,7 @@ public class Tutorial_GrapplingGun : MonoBehaviour
             {
                 Vector2 mousePos = m_camera.ScreenToWorldPoint(Input.mousePosition);
                 RotateGun(mousePos, true);
+                Debug.Log("Hello!");
             }
 
             if (launchToPoint && grappleRope.isGrappling)
@@ -83,8 +93,9 @@ public class Tutorial_GrapplingGun : MonoBehaviour
                 }
             }
         }
-        else if (Input.GetKeyUp(KeyCode.Mouse0))
+        else if (Input.GetKeyUp(KeyCode.Mouse0) || Input.GetKeyUp(KeyCode.Mouse1))
         {
+            isLaunchMode = false;
             grappleRope.enabled = false;
             m_springJoint2D.enabled = false;
             m_rigidbody.gravityScale = 1;
@@ -132,40 +143,35 @@ public class Tutorial_GrapplingGun : MonoBehaviour
     public void Grapple()
     {
         m_springJoint2D.autoConfigureDistance = false;
-        if (!launchToPoint && !autoConfigureDistance)
-        {
-            m_springJoint2D.distance = targetDistance;
-            m_springJoint2D.frequency = targetFrequncy;
-        }
-        if (!launchToPoint)
-        {
-            if (autoConfigureDistance)
-            {
-                m_springJoint2D.autoConfigureDistance = true;
-                m_springJoint2D.frequency = 0;
-            }
-
-            m_springJoint2D.connectedAnchor = grapplePoint;
-            m_springJoint2D.enabled = true;
-        }
-        else
+        m_springJoint2D.connectedAnchor = grapplePoint;
+        
+        // SAĞ TIK - Launch to point
+        if (launchToPoint)
         {
             switch (launchType)
             {
                 case LaunchType.Physics_Launch:
-                    m_springJoint2D.connectedAnchor = grapplePoint;
-
                     m_springJoint2D.distance = 0.5f; // Çok kısa - yaklaşmaya zorla
                     m_springJoint2D.frequency = launchSpeed * 2f; // Daha hızlı
                     m_springJoint2D.dampingRatio = 0.7f; // Bounce kontrolü
                     m_springJoint2D.enabled = true;
-                    
                     break;
                 case LaunchType.Transform_Launch:
                     m_rigidbody.gravityScale = 0;
                     m_rigidbody.linearVelocity = Vector2.zero;
                     break;
             }
+        }
+        // SOL TIK - Normal swing (GERÇEK mesafeyi kullan)
+        else
+        {
+            // GERÇEK mesafeyi hesapla
+            float actualDistance = Vector2.Distance(gunHolder.position, grapplePoint);
+            
+            m_springJoint2D.distance = actualDistance; // Sabit rope uzunluğu
+            m_springJoint2D.frequency = targetFrequncy; // Düşük frequency - rigid rope
+            m_springJoint2D.dampingRatio = 0.7f;
+            m_springJoint2D.enabled = true;
         }
     }
 

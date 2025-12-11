@@ -372,7 +372,7 @@ MonoBehaviour:
   rotateOverTime: 1
   rotationSpeed: 26.2
   hasMaxDistance: 1
-  maxDistnace: 10
+  maxDistnace: 5
   launchToPoint: 1
   launchType: 1
   launchSpeed: 0.5
@@ -381,6 +381,7 @@ MonoBehaviour:
   targetFrequncy: 1
   grapplePoint: {x: 0, y: 0}
   grappleDistanceVector: {x: 0, y: 0}
+  isLaunchMode: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1365,6 +1366,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6625904441442775477, guid: 629caeaf044fa7e469ac92d5ceb30063, type: 3}
+      propertyPath: grappleGun
+      value: 
+      objectReference: {fileID: 173343114}
     - target: {fileID: 6625904441442775477, guid: 629caeaf044fa7e469ac92d5ceb30063, type: 3}
       propertyPath: grappleRope
       value: 
