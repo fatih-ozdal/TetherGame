@@ -30,6 +30,7 @@ public class PlayerMovement2D : MonoBehaviour
     [SerializeField] private Tutorial_GrapplingGun grappleGun; 
 
     private bool wasGrappling = false;
+    private bool preserveMomentum = false;
 
     private Rigidbody2D rb;
     private BoxCollider2D col;
@@ -114,65 +115,25 @@ public class PlayerMovement2D : MonoBehaviour
     private void FixedUpdate()
     {
         bool currentlyGrappling = (grappleRope != null && grappleRope.isGrappling);
+
+        if (!wasGrappling && currentlyGrappling)
+        {
+            Debug.Log("Started new grapple - disabling momentum preservation");
+            preserveMomentum = false; // YENİ - grapple başladı, momentum koruma kapat
+        }
         
-        // Grapple BIRAKILDI MI? (was true, now false)
         if (wasGrappling && !currentlyGrappling)
         {
-            // Momentum'u ZORLA KOR - velocity'yi DEĞİŞTİRME
             Debug.Log($"Released grapple! Momentum: {rb.linearVelocity}");
-            
-            // Ground check yap ama velocity'ye dokunma
-            wasGrounded = isGrounded;
-            if (groundCheck != null)
-            {
-                isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckOffset, groundLayer);
-            }
-            
-            if (isGrounded && !wasGrounded)
-            {
-                OnLanding();
-            }
-            
-            wasGrappling = false;
-            return; // Bu frame'de başka bir şey yapma
+            preserveMomentum = true; // Momentum koruma başlat
         }
         
         wasGrappling = currentlyGrappling;
         
-        // LAUNCH MODE - SpringJoint tam kontrolde
-        if (grappleRope != null && grappleRope.isGrappling && 
-            grappleGun != null && grappleGun.isLaunchMode)
+        // MOMENTUM KORUMA - Havadayken koru
+        if (preserveMomentum && !isGrounded)
         {
-            wasGrounded = isGrounded;
-            
-            if (groundCheck != null)
-            {
-                isGrounded = Physics2D.OverlapCircle(
-                    groundCheck.position,
-                    groundCheckOffset,
-                    groundLayer
-                );
-            }
-            
-            return; // Erken çık
-        }
-        
-        // SWING MODE - sınırlı kontrol
-        if (grappleRope != null && grappleRope.isGrappling && !grappleGun.isLaunchMode)
-        {
-            // Max hız sınırı (dönerek üste çıkmayı engelle)
-            float maxSwingSpeed = 15f;
-            if (rb.linearVelocity.magnitude > maxSwingSpeed)
-            {
-                rb.linearVelocity = rb.linearVelocity.normalized * maxSwingSpeed;
-            }
-            
-            // Player input ile force ekle (AZALTILMIŞ)
-            if (Mathf.Abs(moveInput) > 0.1f)
-            {
-                Vector2 moveForce = Vector2.right * moveInput * moveSpeed * 0.5f; // 2f'den 0.5f'e düşürdük
-                rb.AddForce(moveForce, ForceMode2D.Force);
-            }
+            //Debug.Log($"Preserving momentum (airborne): {rb.linearVelocity}");
             
             // Ground check
             wasGrounded = isGrounded;
@@ -181,10 +142,59 @@ public class PlayerMovement2D : MonoBehaviour
                 isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckOffset, groundLayer);
             }
             
-            return; // Erken çık
+            // Landing check
+            if (isGrounded && !wasGrounded)
+            {
+                OnLanding();
+            }
+            
+            return; // Velocity'ye dokunma
         }
         
-        // NORMAL MOVEMENT - grappling yok
+        // YERE DEĞDİ - momentum koruma bitir
+        if (preserveMomentum && isGrounded)
+        {
+            Debug.Log("Landed - momentum preservation ended");
+            preserveMomentum = false;
+        }
+        
+        // LAUNCH MODE
+        if (grappleRope != null && grappleRope.isGrappling && 
+            grappleGun != null && grappleGun.isLaunchMode)
+        {
+            wasGrounded = isGrounded;
+            if (groundCheck != null)
+            {
+                isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckOffset, groundLayer);
+            }
+            return;
+        }
+        
+        // SWING MODE
+        if (grappleRope != null && grappleRope.isGrappling && !grappleGun.isLaunchMode)
+        {
+            float maxSwingSpeed = 15f;
+            if (rb.linearVelocity.magnitude > maxSwingSpeed)
+            {
+                rb.linearVelocity = rb.linearVelocity.normalized * maxSwingSpeed;
+            }
+            
+            if (Mathf.Abs(moveInput) > 0.1f)
+            {
+                Vector2 moveForce = Vector2.right * moveInput * moveSpeed * 0.5f;
+                rb.AddForce(moveForce, ForceMode2D.Force);
+            }
+            
+            wasGrounded = isGrounded;
+            if (groundCheck != null)
+            {
+                isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckOffset, groundLayer);
+            }
+            
+            return;
+        }
+        
+        // NORMAL MOVEMENT
         float targetSpeed = moveInput * moveSpeed;
         
         if (!isGrounded)
@@ -192,31 +202,19 @@ public class PlayerMovement2D : MonoBehaviour
             targetSpeed *= airControlMultiplier;
         }
 
-        // Normal ground/air movement
         rb.linearVelocity = new Vector2(targetSpeed, rb.linearVelocity.y);
 
-        // Wall Slide Physics
         if (isWallSliding)
         {
-            rb.linearVelocity = new Vector2(
-                rb.linearVelocity.x,
-                Mathf.Max(rb.linearVelocity.y, -wallSlideSpeed)
-            );
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, -wallSlideSpeed));
         }
 
-        // Ground Check
         wasGrounded = isGrounded;
-        
         if (groundCheck != null)
         {
-            isGrounded = Physics2D.OverlapCircle(
-                groundCheck.position,
-                groundCheckOffset,
-                groundLayer
-            );
+            isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckOffset, groundLayer);
         }
 
-        // Landing feedback
         if (isGrounded && !wasGrounded)
         {
             OnLanding();

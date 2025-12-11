@@ -1025,7 +1025,7 @@ PrefabInstance:
       objectReference: {fileID: 1574378866}
     - target: {fileID: 6625904441442775477, guid: 629caeaf044fa7e469ac92d5ceb30063, type: 3}
       propertyPath: jumpForce
-      value: 8
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 6625904441442775477, guid: 629caeaf044fa7e469ac92d5ceb30063, type: 3}
       propertyPath: grappleGun
@@ -1039,6 +1039,18 @@ PrefabInstance:
       propertyPath: m_camera
       value: 
       objectReference: {fileID: 519420031}
+    - target: {fileID: 6675851448804523227, guid: 629caeaf044fa7e469ac92d5ceb30063, type: 3}
+      propertyPath: launchSpeed
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6675851448804523227, guid: 629caeaf044fa7e469ac92d5ceb30063, type: 3}
+      propertyPath: maxDistnace
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6675851448804523227, guid: 629caeaf044fa7e469ac92d5ceb30063, type: 3}
+      propertyPath: rotationSpeed
+      value: 25
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

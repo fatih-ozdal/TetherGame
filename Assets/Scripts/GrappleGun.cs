@@ -80,7 +80,6 @@ public class Tutorial_GrapplingGun : MonoBehaviour
             {
                 Vector2 mousePos = m_camera.ScreenToWorldPoint(Input.mousePosition);
                 RotateGun(mousePos, true);
-                Debug.Log("Hello!");
             }
 
             if (launchToPoint && grappleRope.isGrappling)
