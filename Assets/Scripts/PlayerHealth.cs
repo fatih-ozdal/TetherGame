@@ -7,6 +7,8 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private int maxHealth = 3;
     private int currentHealth;
     
+    public int CurrentHealth => currentHealth;
+    
     [Header("Respawn")]
     [SerializeField] private Transform respawnPoint;
     

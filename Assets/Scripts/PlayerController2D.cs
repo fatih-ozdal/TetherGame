@@ -118,13 +118,13 @@ public class PlayerMovement2D : MonoBehaviour
 
         if (!wasGrappling && currentlyGrappling)
         {
-            Debug.Log("Started new grapple - disabling momentum preservation");
+            //Debug.Log("Started new grapple - disabling momentum preservation");
             preserveMomentum = false; // YENİ - grapple başladı, momentum koruma kapat
         }
         
         if (wasGrappling && !currentlyGrappling)
         {
-            Debug.Log($"Released grapple! Momentum: {rb.linearVelocity}");
+            //Debug.Log($"Released grapple! Momentum: {rb.linearVelocity}");
             preserveMomentum = true; // Momentum koruma başlat
         }
         
@@ -154,7 +154,7 @@ public class PlayerMovement2D : MonoBehaviour
         // YERE DEĞDİ - momentum koruma bitir
         if (preserveMomentum && isGrounded)
         {
-            Debug.Log("Landed - momentum preservation ended");
+            //Debug.Log("Landed - momentum preservation ended");
             preserveMomentum = false;
         }
         

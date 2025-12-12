@@ -37,7 +37,7 @@ public class MovingPlatform : MonoBehaviour
         if (distance < 0.1f)
         {
             movingToB = !movingToB; // Yönü değiştir
-            Debug.Log($"Platform reached target! Now moving to: {(movingToB ? "B" : "A")}");
+            //Debug.Log($"Platform reached target! Now moving to: {(movingToB ? "B" : "A")}");
         }
     }
     
