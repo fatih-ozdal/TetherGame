@@ -48,6 +48,7 @@ public class Tutorial_GrapplingGun : MonoBehaviour
     [HideInInspector] public Vector2 grapplePoint;
     [HideInInspector] public Vector2 grappleDistanceVector;
     [HideInInspector] public bool isLaunchMode = false;
+    [HideInInspector] private Rigidbody2D grappleRigidbody;
 
     private void Start()
     {
@@ -74,6 +75,18 @@ public class Tutorial_GrapplingGun : MonoBehaviour
         {
             if (grappleRope.enabled)
             {
+                // Rigidbody varsa pozisyonu güncelle
+                if (grappleRigidbody != null)
+                {
+                    grapplePoint = grappleRigidbody.position; // Rigidbody'nin pozisyonu
+                    grappleDistanceVector = grapplePoint - (Vector2)gunPivot.position;
+                    
+                    if (m_springJoint2D.enabled)
+                    {
+                        m_springJoint2D.connectedAnchor = grapplePoint;
+                    }
+                }
+                
                 RotateGun(grapplePoint, false);
             }
             else
@@ -95,6 +108,7 @@ public class Tutorial_GrapplingGun : MonoBehaviour
         else if (Input.GetKeyUp(KeyCode.Mouse0) || Input.GetKeyUp(KeyCode.Mouse1))
         {
             isLaunchMode = false;
+            grappleRigidbody = null;
             grappleRope.enabled = false;
             m_springJoint2D.enabled = false;
             m_rigidbody.gravityScale = 1;
@@ -133,6 +147,10 @@ public class Tutorial_GrapplingGun : MonoBehaviour
                 {
                     grapplePoint = _hit.point;
                     grappleDistanceVector = grapplePoint - (Vector2)gunPivot.position;
+                    
+                    // Rigidbody varsa moving obje
+                    grappleRigidbody = _hit.rigidbody;
+                    
                     grappleRope.enabled = true;
                 }
             }
