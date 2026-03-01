@@ -150,4 +150,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f9623c4f234f0c4699fbe9037d5325d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelGoal
-  nextSceneName: Level2
+  nextSceneName: Level1

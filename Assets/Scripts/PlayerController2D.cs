@@ -69,6 +69,9 @@ public class PlayerMovement2D : MonoBehaviour
     
     private void Update()
     {
+        if (PauseMenu.GameIsPaused)
+            return;
+
         moveInput = Input.GetAxisRaw("Horizontal");
 
         // Coyote Timer

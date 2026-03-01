@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 6579767352331831878}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -206,7 +206,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement2D
   moveSpeed: 8
-  jumpForce: 12
+  jumpForce: 8
   airControlMultiplier: 0.7
   coyoteTime: 0.15
   jumpBufferTime: 0.2
@@ -236,7 +236,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxHealth: 3
+  invincibilityDuration: 1
+  hitFlashSpeed: 10
+  spriteRenderer: {fileID: 0}
+  damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  damageFlashDuration: 0.1
+  bloodParticlesPrefab: {fileID: 0}
   respawnPoint: {fileID: 0}
+  enableHitStop: 0
+  hitStopTimeScale: 0.1
+  hitStopDuration: 0.035
 --- !u!1 &1422332451025946960
 GameObject:
   m_ObjectHideFlags: 0
@@ -413,12 +422,12 @@ MonoBehaviour:
   m_springJoint2D: {fileID: 2602777623353368598}
   m_rigidbody: {fileID: 4213498704369842195}
   rotateOverTime: 1
-  rotationSpeed: 26.2
+  rotationSpeed: 25
   hasMaxDistance: 1
-  maxDistnace: 5
+  maxDistnace: 10
   launchToPoint: 1
   launchType: 1
-  launchSpeed: 0.5
+  launchSpeed: 0.4
   autoConfigureDistance: 0
   targetDistance: 3
   targetFrequncy: 1
@@ -529,7 +538,7 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 1}
+      key0: {r: 0.20754719, g: 0.20754719, b: 0.20754719, a: 1}
       key1: {r: 1, g: 1, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
@@ -554,7 +563,7 @@ LineRenderer:
       atime6: 0
       atime7: 0
       m_Mode: 0
-      m_ColorSpace: -1
+      m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
     numCornerVertices: 1
